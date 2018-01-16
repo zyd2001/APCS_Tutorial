@@ -64,6 +64,10 @@ mainClass 这一项可以改成你当前文件的Class名，接着创建一个Ma
 
 APCS的标配IDE，不过觉得这个最好只用来编译和调试，编辑功能实在太差，先在VSCode里面写完代码然后这里面调试也是一种选择。因为是IDE，编译，运行和调试都是一键的，这个基本上APCS或者是Pre都会讲，我也确实觉得这软件UI难看，所以不介绍。
 
+## IDE
+
+好的Java IDE有不少，比较好的有[eclipse(免费)](http://www.eclipse.org/downloads/eclipse-packages/), [NetBeans(免费)](https://netbeans.org/downloads/), [Intellij Idea(收费，也有开原版，最强大)](https://www.jetbrains.com/idea/download/)
+
 ## **第一次尝试写，可能并不是特别好，有问题请评论或者qq找我**
 
 另外我现在还有一个网站的项目，有兴趣的可以联系我

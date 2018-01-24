@@ -15,32 +15,34 @@ if (process.argv[2] == 'watch')
     });
     rl.on('close', () => {
         fs.watch('Captures', (event, filename) => {
-            if (filename && event == 'change' && list.indexOf(filename) == -1 && processed.indexOf(filename) == -1)
+            if (filename && event == 'change' && list.indexOf(filename) == -1 && processed.indexOf(filename) == -1 && filename.substring(filename.lastIndexOf('.')) != '.csv')
             {
-                setTimeout(() => {
-                    processed.push(filename);
-                    request.post({
-                        url: "https://sm.ms/api/upload",
-                        headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'},
-                        formData: {smfile: fs.createReadStream('Captures/' + filename)},
-                    }, (err, httpResponse, body, filename) => {
-                        if (err)
-                            console.log(body);
-                        else
-                        {
-                            var res = JSON.parse(body);
-                            if (res.code == 'error')
-                                console.error(res.msg);
-                            else 
+                processed.push(filename);
+                ((file) => {
+                    setTimeout(() => {
+                        request.post({
+                            url: "https://sm.ms/api/upload",
+                            headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'},
+                            formData: {smfile: fs.createReadStream('Captures/' + file)},
+                        }, (err, httpResponse, body) => {
+                            if (err)
+                                console.log(body);
+                            else
                             {
-                                list.push(filename);
-                                console.log(res);
-                                console.log('upload ' + filename + ' success!\n' + 'url: ' + res.data.url);
-                                fs.appendFileSync('Captures/list.csv', '\n' + filename + ',' + res.data.url);
+                                var res = JSON.parse(body);
+                                if (res.code == 'error')
+                                    console.error(res.msg);
+                                else 
+                                {
+                                    list.push(file);
+                                    // console.log(res);
+                                    console.log('uploaded ' + file + '\n' + 'url: ' + res.data.url);
+                                    fs.appendFileSync('Captures/list.csv', '\n' + file + ',' + res.data.url + ',' + res.data.delete);
+                                }
                             }
-                        }
-                    });
-                }, 1000);
+                        });
+                    }, 1000);
+                })(filename);
             }
         });
     });
@@ -59,26 +61,28 @@ else
             {
                 if (list.indexOf(file) == -1 && file.substring(file.lastIndexOf('.')) != '.csv')
                 {
-                    console.log('request ' + file);
-                    request.post({
-                            url: "https://sm.ms/api/upload",
-                            headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'},
-                            formData: {smfile: fs.createReadStream('Captures/' + file)},
-                        }, (err, httpResponse, body, file) => {
-                            if (err)
-                                console.log('err');
-                            else
-                            {
-                                var res = JSON.parse(body);
-                                if (res.code == 'error')
-                                    console.error(res.msg);
+                    console.log('uploading ' + file);
+                    ((filename) => {
+                        request.post({
+                                url: "https://sm.ms/api/upload",
+                                headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'},
+                                formData: {smfile: fs.createReadStream('Captures/' + filename)},
+                            }, (err, httpResponse, body) => {
+                                if (err)
+                                    console.log('err');
                                 else
                                 {
-                                    console.log(file);
-                                    fs.appendFileSync('Captures/list.csv', '\n' + file + ',' + res.data.url);
+                                    var res = JSON.parse(body);
+                                    if (res.code == 'error')
+                                        console.error(res.msg);
+                                    else
+                                    {
+                                        console.log('uploaded ' + filename);
+                                        fs.appendFileSync('Captures/list.csv', '\n' + filename + ',' + res.data.url + ',' + res.data.delete);
+                                    }
                                 }
-                            }
-                    });
+                        });
+                    })(file);
                 }
             }      
         });

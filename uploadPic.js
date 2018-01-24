@@ -15,11 +15,13 @@ if (process.argv[2] == 'watch')
     });
     rl.on('close', () => {
         fs.watch('Captures', (event, filename) => {
-            if (filename && event == 'change' && list.indexOf(filename) == -1 && processed.indexOf(filename) == -1 && filename.substring(filename.lastIndexOf('.')) != '.csv')
+            if (filename && event == 'change' && list.indexOf(filename) == -1 && processed.indexOf(filename) == -1 && filename.split('.')[1] != 'csv')
             {
                 processed.push(filename);
                 ((file) => {
+                    console.log('detect ' + file);
                     setTimeout(() => {
+                        console.log('uploading ' + filename);
                         request.post({
                             url: "https://sm.ms/api/upload",
                             headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'},
@@ -36,7 +38,7 @@ if (process.argv[2] == 'watch')
                                 {
                                     list.push(file);
                                     // console.log(res);
-                                    console.log('uploaded ' + file + '\n' + 'url: ' + res.data.url);
+                                    console.log(file + ' uploaded' + '\n' + 'url: ' + res.data.url);
                                     fs.appendFileSync('Captures/list.csv', '\n' + file + ',' + res.data.url + ',' + res.data.delete);
                                 }
                             }
@@ -59,7 +61,7 @@ else
             var appendContent = [];
             for (file of files)
             {
-                if (list.indexOf(file) == -1 && file.substring(file.lastIndexOf('.')) != '.csv')
+                if (list.indexOf(file) == -1 && file.split('.')[1] != 'csv')
                 {
                     console.log('uploading ' + file);
                     ((filename) => {
@@ -77,7 +79,7 @@ else
                                         console.error(res.msg);
                                     else
                                     {
-                                        console.log('uploaded ' + filename);
+                                        console.log(filename + ' uploaded');
                                         fs.appendFileSync('Captures/list.csv', '\n' + filename + ',' + res.data.url + ',' + res.data.delete);
                                     }
                                 }
